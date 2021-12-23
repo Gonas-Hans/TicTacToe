@@ -32,7 +32,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AActor> ZeroActor;
 
+	UPROPERTY()
+    TArray<AActor*> Marked;
+
 	bool bToggle;
+	
+	void SpawnGrid(TSubclassOf<AActor> GridCell);
+	
 
 protected:
 	virtual void BeginPlay() override;
