@@ -34,31 +34,35 @@ void ATTT_PlayerController::OnMouseClick()
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Pawn, false, HitResult);
 	AActor* HitActor = HitResult.GetActor();
 
-	// If click on Cell that spawn cross or zero (toggle)
-	if ((HitActor->GetClass() == CellActor))
+	if (Marked.Find(HitActor) == INDEX_NONE)
 	{
-		
-		if (bToggle)
+		// If click on Cell that spawn cross or zero (toggle)
+		if ((HitActor->GetClass() == CellActor))
 		{
-			SpawnSign = CrossActor;
-			bToggle = false;
-		}
+		
+			if (bToggle)
+			{
+				SpawnSign = CrossActor;
+				bToggle = false;
+			}
         			
-		else
-		{
-			SpawnSign = ZeroActor;
-			bToggle = true;
+			else
+			{
+				SpawnSign = ZeroActor;
+				bToggle = true;
+			}
+		
+			FVector SpawnLoc = HitActor->GetActorLocation()+ FVector(0.f, 0.f, 10.f);
+			FRotator SpawnRot = HitActor->GetActorRotation();
+		
+			GetWorld()->SpawnActor<AActor>(SpawnSign, SpawnLoc, SpawnRot);
+
+			Marked.Add(HitActor);
+		
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *HitActor->GetName());
+			/*GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::Printf(TEXT("Mouse Click+++ Actor: %s"), *HitResult.GetActor()->GetName()));*/
 		}
-		
-		FVector SpawnLoc = HitActor->GetActorLocation()+ FVector(0.f, 0.f, 10.f);
-		FRotator SpawnRot = HitActor->GetActorRotation();
-		
-		GetWorld()->SpawnActor<AActor>(SpawnSign, SpawnLoc, SpawnRot);
-		
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *HitActor->GetName());
-		/*GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::Printf(TEXT("Mouse Click+++ Actor: %s"), *HitResult.GetActor()->GetName()));*/
 	}
-	
 }
 
 void ATTT_PlayerController::SpawnGrid(const TSubclassOf<AActor> GridCell)
