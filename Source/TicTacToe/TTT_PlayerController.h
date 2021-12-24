@@ -33,12 +33,14 @@ public:
 	TSubclassOf<AActor> ZeroActor;
 
 	UPROPERTY()
-    TArray<AActor*> Marked;
+	TArray<AActor*> Marked;
 
+	UPROPERTY()
+	TArray<AActor*> Grid;
+	
 	bool bToggle;
 	
 	void SpawnGrid(TSubclassOf<AActor> GridCell);
-	
 
 protected:
 	virtual void BeginPlay() override;
