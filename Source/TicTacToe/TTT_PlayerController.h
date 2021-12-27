@@ -16,13 +16,7 @@ class TICTACTOE_API ATTT_PlayerController : public APlayerController
 
 public:
 	ATTT_PlayerController();
-
-	UFUNCTION()
-	virtual void SetupInputComponent() override;
-
-	UFUNCTION()
-	virtual void OnMouseClick();
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AActor> CellActor;
 
@@ -33,16 +27,48 @@ public:
 	TSubclassOf<AActor> ZeroActor;
 
 	UPROPERTY()
+	TSubclassOf<AActor> SignActor;
+
+	UPROPERTY()
+	int LineScore;
+	
+	UPROPERTY()
 	TArray<AActor*> Marked;
 
 	UPROPERTY()
 	TArray<AActor*> Grid;
 	
-	bool bToggle;
+	UFUNCTION()
+	virtual void PlayerClick();
+
+	UFUNCTION()
+	void ChoiceSign(AActor* Sign);
 	
-	void SpawnGrid(TSubclassOf<AActor> GridCell);
+	UFUNCTION()
+	virtual void AIMakeClick();
+
+	UFUNCTION()
+	void SwitchSign();
+
+	UFUNCTION()
+	void SwitchAIBot();
+
+	UFUNCTION()
+	void SpawnSign(AActor* CellForSpawn);
+
+	UFUNCTION()
+	void SpawnGrid();
+	
+	bool bToggle = true;
+	bool bAIStep = false;
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+	
+	UFUNCTION()
+	virtual void SetupInputComponent() override;
+	
 	
 };
