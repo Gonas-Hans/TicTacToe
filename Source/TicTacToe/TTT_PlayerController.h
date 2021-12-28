@@ -27,40 +27,35 @@ public:
 	TSubclassOf<AActor> ZeroActor;
 
 	UPROPERTY()
-	TSubclassOf<AActor> SignActor;
-
-	UPROPERTY()
-	int LineScore;
+	TSubclassOf<AActor> AISign;
 	
 	UPROPERTY()
-	TArray<AActor*> Marked;
+	TSubclassOf<AActor> PlayerSign;
+	
+	UPROPERTY()
+	TArray<AActor*> AICells;
+
+	UPROPERTY()
+	TArray<AActor*> PlayerCells;
+		
+	UPROPERTY()
+	TArray<AActor*> MarkedCells;
 
 	UPROPERTY()
 	TArray<AActor*> Grid;
 	
-	UFUNCTION()
-	virtual void PlayerClick();
-
-	UFUNCTION()
-	void ChoiceSign(AActor* Sign);
+	int PlayerScore = 0;
+	void PlayerMakeClick();
 	
-	UFUNCTION()
-	virtual void AIMakeClick();
-
-	UFUNCTION()
-	void SwitchSign();
-
-	UFUNCTION()
-	void SwitchAIBot();
-
-	UFUNCTION()
-	void SpawnSign(AActor* CellForSpawn);
-
-	UFUNCTION()
-	void SpawnGrid();
+	int AIScore = 0;
+	bool bAICanStep = false;
+	void AIMakeClick();
+	void AICheckGrid();
 	
-	bool bToggle = true;
-	bool bAIStep = false;
+	void SignSpawn(AActor* CellForSpawn, TSubclassOf<AActor> Sign, TArray<AActor*> &Cells, int &Score);
+	void SignChoice(AActor* Sign);
+	
+	void GridSpawn(TSubclassOf<AActor> Cell, TArray<AActor*> &GridArray);
 
 protected:
 	virtual void BeginPlay() override;
