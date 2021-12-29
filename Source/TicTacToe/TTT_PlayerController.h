@@ -31,18 +31,15 @@ public:
 	
 	UPROPERTY()
 	TSubclassOf<AActor> PlayerSign;
-	
-	UPROPERTY()
-	TArray<AActor*> AICells;
-
-	UPROPERTY()
-	TArray<AActor*> PlayerCells;
 		
 	UPROPERTY()
 	TArray<AActor*> MarkedCells;
 
 	UPROPERTY()
-	TArray<AActor*> Grid;
+	TArray<int> GridWeight;
+
+	UPROPERTY()
+	TArray<AActor*> GridCells;
 	
 	int PlayerScore = 0;
 	void PlayerMakeClick();
@@ -52,10 +49,10 @@ public:
 	void AIMakeClick();
 	void AICheckGrid();
 	
-	void SignSpawn(AActor* CellForSpawn, TSubclassOf<AActor> Sign, TArray<AActor*> &Cells, int &Score);
+	void SignSpawn(AActor* HitActor, TSubclassOf<AActor> Sign, const int Weight);
 	void SignChoice(AActor* Sign);
 	
-	void GridSpawn(TSubclassOf<AActor> Cell, TArray<AActor*> &GridArray);
+	void GridSpawn(TSubclassOf<AActor> Cell);
 
 protected:
 	virtual void BeginPlay() override;
