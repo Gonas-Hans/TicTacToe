@@ -3,10 +3,14 @@
 
 #include "TTT_PlayerController.h"
 
+#include "LevelEditorMenuContext.h"
+#include "Kismet/KismetSystemLibrary.h"
+
 
 // Constructor
 ATTT_PlayerController::ATTT_PlayerController()
 {
+	GridWeight.Init(0, 9);
 	
 }
 
@@ -25,7 +29,7 @@ void ATTT_PlayerController::BeginPlay()
 	Super::BeginPlay();
 		
 	// Create grid by CellActor
-    GridSpawn(CellActor, Grid);
+    GridSpawn(CellActor);
 	
 }
 
@@ -38,10 +42,16 @@ void ATTT_PlayerController::Tick(float DeltaSeconds)
 	{
 		AIMakeClick();
 	}
+	
+	int Item = 0;
+	if (GridWeight.Find(Item) == INDEX_NONE)
+		UKismetSystemLibrary::QuitGame(GetWorld(), this, EQuitPreference::Quit,
+		true);
+	
 }
 
 // Spawn grid by Cell actor
-void ATTT_PlayerController::GridSpawn(TSubclassOf<AActor> Cell, TArray<AActor*> &GridArray)
+void ATTT_PlayerController::GridSpawn(TSubclassOf<AActor> Cell)
 {
 	int Size = 3;
 	float CellSpace = 150.f;
@@ -53,11 +63,13 @@ void ATTT_PlayerController::GridSpawn(TSubclassOf<AActor> Cell, TArray<AActor*> 
     	{
     		XLocation = (i % Size) * CellSpace;
     		YLocation = (i / Size) * CellSpace;
+
+			UE_LOG(LogTemp, Warning, TEXT("Grid X %f Y %f"), XLocation, YLocation);
     
     		SpawnedActor = GetWorld()->SpawnActor<AActor>(Cell, FVector(XLocation, YLocation, 10.f),
     		FRotator(0.f, 0.f, 0.f));
 
-			GridArray.Add(SpawnedActor);
+			GridCells.Add(SpawnedActor);
     	}
 }
 
@@ -75,62 +87,57 @@ void ATTT_PlayerController::PlayerMakeClick()
 	// If player click on cell that
 	if ((HitActor->GetClass() == CellActor))
 	{
-		SignSpawn(HitActor, PlayerSign, PlayerCells, PlayerScore);
-		
-		//Find cell index in grid array
-		int Index = 0;
-		Grid.Find(HitActor, Index);
-		UE_LOG(LogTemp, Warning, TEXT("%d"), Index);
+		SignSpawn(HitActor, PlayerSign, -1);
 	}
 }
 
 // AI make "click" for spawn sign
 void ATTT_PlayerController::AIMakeClick()
 {
+	int CellIndex = FMath::RandRange(0, 8);
+		
+	AActor* HitActor = GridCells[CellIndex];
+		
+	SignSpawn(HitActor, AISign, 1);
 	
-	//if (AIScore == 0)
-	//{
-		int CellIndex = FMath::RandRange(0, Grid.Num()-1);
-		
-		AActor* HitActor = Grid[CellIndex];
-		
-		SignSpawn(HitActor, AISign, AICells, AIScore);
-		
-	//}
-}
-
-void ATTT_PlayerController::AICheckGrid()
-{
-	for (int i = 0; i <9; ++i)
-	{
-		
-		
-	}
 }
 
 //Spawn sign, Cross or Zero
-void ATTT_PlayerController::SignSpawn(AActor* CellForSpawn, TSubclassOf<AActor> Sign, TArray<AActor*> &Cells, int &Score)
+void ATTT_PlayerController::SignSpawn(AActor* HitActor, TSubclassOf<AActor> Sign, const int Weight)
 {
 	if (Sign)
 	{
-		//If cell is blank (Marked array doesn't have CellForSpawn) that player can spawn sign Cross or Zero 
-		if (!(Grid.Find(CellForSpawn) == INDEX_NONE))
+		//Find index of cell where sign will be spawn
+     	int Index = 0;
+     	GridCells.Find(HitActor, Index);
+		
+		//If cell is blank (weight == 0) that spawn sign 
+		if (GridWeight[Index] == 0)
 		{
-			FVector SpawnLoc = CellForSpawn->GetActorLocation()+ FVector(0.f, 0.f, 10.f);
-			FRotator SpawnRot = CellForSpawn->GetActorRotation();
+			FVector SpawnLoc = HitActor->GetActorLocation()+ FVector(0.f, 0.f, 10.f);
+			FRotator SpawnRot = HitActor->GetActorRotation();
                     		
 			GetWorld()->SpawnActor<AActor>(Sign, SpawnLoc, SpawnRot);
-                    
-			Cells.Add(CellForSpawn);
-			Grid.Remove(CellForSpawn);
-			
-			Score++;
-			UE_LOG(LogTemp, Warning, TEXT("%d"), Score);
+
+			GridWeight[Index] = Weight;
 			
 			bAICanStep = !bAICanStep;
 		}
+		UE_LOG(LogTemp, Warning, TEXT("Grid points %d"), GridWeight[Index]);
 	}
 }
+void ATTT_PlayerController::AICheckGrid()
+{
+	int Col = 0; // Column
+	int Row = 0;
+	// Check rows
+	for (int i = 0; i < 3; ++i)
+	{
+		int RowSum = GridWeight[i*3] + GridWeight[i*3+1] + GridWeight[i*3+2];
+	}
+}
+
+
 
 // Choice sign or who first make step
 void ATTT_PlayerController::SignChoice(AActor* Sign)
